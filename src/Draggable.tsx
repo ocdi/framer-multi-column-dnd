@@ -18,7 +18,7 @@ export interface IDraggableProps {
 const onTop = { zIndex: 1 };
 const flat = {
   zIndex: 0,
-  transition: { delay: 0.3 }
+  transition: { delay: 0.3 },
 };
 
 type DragState = {
@@ -80,23 +80,26 @@ export const Draggable = (props: IDraggableProps) => {
         //   ref.current.getBoundingClientRect()
         // );
 
-        if (ref.current) {
-          setPosition(dragIndex, ref.current.getBoundingClientRect());
-          moveItem(dragIndex, point.y - offset);
+        if (!ref.current) {
+          return;
         }
+
+        setPosition(dragIndex, ref.current.getBoundingClientRect());
+        moveItem(dragIndex, point.y - offset);
 
         if (
           previousPos.current ===
-          JSON.stringify(ref.current.getBoundingClientRect())
+          JSON.stringify(ref.current?.getBoundingClientRect())
         ) {
           return;
         }
+
         previousPos.current = JSON.stringify(
-          ref.current.getBoundingClientRect()
+          ref.current?.getBoundingClientRect()
         );
 
         const overlapContainer = dragContext.getOverlappingDraggableId(
-          ref.current.getBoundingClientRect()
+          ref.current?.getBoundingClientRect()
         );
         if (overlapContainer !== props.containerId) {
           dragContext.containerSteals.current[overlapContainer]?.();
@@ -120,7 +123,7 @@ export const Draggable = (props: IDraggableProps) => {
         style={{
           display: "grid",
           gridTemplateColumns: "1fr 1fr",
-          columnGap: 5
+          columnGap: 5,
         }}
       >
         {ref.current?.offsetTop}

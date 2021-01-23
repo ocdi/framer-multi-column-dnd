@@ -3,7 +3,6 @@ import { Position } from "./Common";
 // import { clamp, distance } from "@popmotion/popcorn";
 import { findIndex } from "./find-index";
 import move from "array-move";
-import { AnimateSharedLayout } from "framer-motion";
 import { useDragContext } from "./DragContext";
 
 // Prevent rapid reverse swapping
@@ -91,7 +90,7 @@ export const Container: React.FC<IContainerProps> = ({
 }) => {
   const positions = React.useRef<Position[]>([]).current;
   const setPosition = (i: number, offset: Position) => (positions[i] = offset);
-  const [indexes, setIndexes] = React.useState(
+  const [indexes, setIndexes] = React.useState<React.ReactNode[]>(
     React.Children.toArray(children)
   );
 
@@ -99,14 +98,17 @@ export const Container: React.FC<IContainerProps> = ({
   const ref = React.useRef<HTMLDivElement>();
 
   function requestSteal() {
-    setIndexes((p) => [...p, dragContext.draggingItem.current?.item]);
-    if (dragContext.draggingItem.current?.steal()) {
+    const item = dragContext?.draggingItem?.current?.item;
+    if (!item) return;
+
+    if (dragContext?.draggingItem?.current?.steal()) {
+      setIndexes((p) => [...p, item]);
     }
   }
 
   React.useEffect(() => {
     if (ref.current)
-      dragContext.setContainerPosition(
+      dragContext?.setContainerPosition(
         containerId,
         ref.current.getBoundingClientRect(),
         requestSteal
@@ -160,8 +162,10 @@ export const Container: React.FC<IContainerProps> = ({
         console.log("already stolen");
         return false;
       }
+      const dragItem =   dragContext.draggingItem.current;
+      dragContext.draggingItem.current = undefined;
 
-      const index = indexes.indexOf(item);
+      const index = indexes.indexOf(dragItem.item);
       console.log("item being stolen", containerId, index);
       if (index >= 0) {
         indexes.splice(index, 1);
@@ -169,10 +173,12 @@ export const Container: React.FC<IContainerProps> = ({
         positions.splice(index, 1);
       }
 
-      dragContext.draggingItem.current = undefined;
+      
+      
       return false;
     }
 
+    
     dragContext.draggingItem.current = { item, containerId, steal };
   }
 
