@@ -5,6 +5,8 @@ import { findIndex } from "./find-index";
 import move from "array-move";
 import { useDragContext } from "./DragContext";
 
+import { motion } from "framer-motion";
+
 // Prevent rapid reverse swapping
 // const buffer = 5;
 
@@ -43,6 +45,7 @@ interface IContainerProps {
   orientation?: "vertical" | "horizontal";
   onReorderItems?: (keys: string[]) => void;
   containerId: string;
+  style?: React.CSSProperties;
 }
 
 /*
@@ -86,7 +89,8 @@ export const Container: React.FC<IContainerProps> = ({
   orientation,
   onReorderItems,
   containerId,
-  children
+  children,
+  style
 }) => {
   const positions = React.useRef<Position[]>([]).current;
   const setPosition = (i: number, offset: Position) => (positions[i] = offset);
@@ -188,7 +192,8 @@ export const Container: React.FC<IContainerProps> = ({
       style={{
         backgroundColor: "red",
         display: "flex",
-        flexDirection: orientation === "horizontal" ? "row" : "column"
+        flexDirection: orientation === "horizontal" ? "row" : "column",
+        ...style
       }}
     >
       {React.Children.map(indexes, (child, index) => {

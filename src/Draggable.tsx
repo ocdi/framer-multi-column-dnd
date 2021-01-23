@@ -13,7 +13,7 @@ export interface IDraggableProps {
   dragEnd?: () => void;
   containerId?: string;
 
-  changeContainer: (container: string) => void
+  changeContainer?: (container: string) => void
 }
 
 // Spring configs
@@ -77,6 +77,9 @@ export const Draggable = (props: IDraggableProps) => {
 
         setPosition(dragIndex, ref.current.getBoundingClientRect());
         moveItem(dragIndex, point.y - offset);
+
+        // we can't consider changing containers
+        if (!props.changeContainer) return;
 
         if (
           previousPos.current ===
