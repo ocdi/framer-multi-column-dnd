@@ -97,28 +97,23 @@ export const Container: React.FC<IContainerProps> = ({
   const dragContext = useDragContext();
   const ref = React.useRef<HTMLDivElement>();
 
-  function requestSteal() {
-    const item = dragContext?.draggingItem?.current?.item;
-    if (!item) return;
-
-    if (dragContext?.draggingItem?.current?.steal()) {
-      setIndexes((p) => [...p, item]);
-    }
-  }
-
+ 
   React.useEffect(() => {
     if (ref.current)
       dragContext?.setContainerPosition(
         containerId,
-        ref.current.getBoundingClientRect(),
-        requestSteal
+        ref.current.getBoundingClientRect()
       );
   });
 
   //const [draggedTargetIndex, setDraggedTargetIndex] = React.useState(undefined);
   //const [draggedIndex, setDraggedIndex] = React.useState(undefined);
 
-  React.useEffect(() => setIndexes(React.Children.toArray(children)), [
+  React.useEffect(() => {
+    console.log('resetting children', containerId )
+    setIndexes(React.Children.toArray(children));
+    positions.length = 0;
+  }, [
     children
   ]);
   // todo add a useEffect if children change
@@ -196,7 +191,6 @@ export const Container: React.FC<IContainerProps> = ({
         flexDirection: orientation === "horizontal" ? "row" : "column"
       }}
     >
-      {JSON.stringify(positions)}
       {React.Children.map(indexes, (child, index) => {
         if (React.isValidElement(child)) {
           //child.type ==
@@ -206,7 +200,6 @@ export const Container: React.FC<IContainerProps> = ({
             containerId,
             dragEnd,
             dragStart,
-            requestSteal,
             setPosition
           });
         }

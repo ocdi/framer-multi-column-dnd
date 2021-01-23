@@ -14,14 +14,11 @@ type DragContextApi = {
   dragPosition: React.MutableRefObject<KeyedPosition | undefined>;
   setContainerPosition: (
     containerId: string,
-    position: Position,
-    requestSteal: () => void
+    position: Position
   ) => void;
   getOverlappingDraggableId: (rect: Position) => string;
 
   draggingItem: React.MutableRefObject<DraggingItem | undefined>;
-
-  containerSteals: React.MutableRefObject<Record<string, () => void>>;
 };
 
 const DragContext = React.createContext<DragContextApi>(undefined);
@@ -31,17 +28,14 @@ export const useDragContext = () => React.useContext(DragContext);
 export const DragContextProvider: React.FC = ({ children }) => {
   const draggedPosition = React.useRef<KeyedPosition>();
   const containers = React.useRef<Record<string, Position>>({});
-  const containerSteals = React.useRef<Record<string, () => void>>({});
 
   const draggingItem = React.useRef<DraggingItem | undefined>(undefined);
 
   function setContainerPosition(
     containerId: string,
-    position: Position,
-    rs: () => void
+    position: Position
   ) {
     containers.current[containerId] = position;
-    containerSteals.current[containerId] = rs;
   }
 
   function setDragPosition(k, p) {
@@ -54,7 +48,6 @@ export const DragContextProvider: React.FC = ({ children }) => {
         value={{
           setDragPosition,
           setContainerPosition,
-          containerSteals,
           draggingItem,
           dragPosition: draggedPosition,
           getOverlappingDraggableId: (rect: Position) => {

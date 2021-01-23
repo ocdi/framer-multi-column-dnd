@@ -12,6 +12,8 @@ export interface IDraggableProps {
   dragStart?: (index: number) => void;
   dragEnd?: () => void;
   containerId?: string;
+
+  changeContainer: (container: string) => void
 }
 
 // Spring configs
@@ -69,17 +71,6 @@ export const Draggable = (props: IDraggableProps) => {
       drag
       ref={ref}
       onDrag={(e, { point }) => {
-        // setPosition(dragIndex, {
-        //   height: ref.current.offsetHeight,
-        //   top: ref.current.offsetTop
-        // });
-        //console.log("the y pos", point.y);
-
-        // dragContext.setDragPosition(
-        //   props.itemId,
-        //   ref.current.getBoundingClientRect()
-        // );
-
         if (!ref.current) {
           return;
         }
@@ -102,7 +93,7 @@ export const Draggable = (props: IDraggableProps) => {
           ref.current?.getBoundingClientRect()
         );
         if (overlapContainer !== props.containerId) {
-          dragContext.containerSteals.current[overlapContainer]?.();
+          props.changeContainer(overlapContainer);
           return;
         }
       }}
