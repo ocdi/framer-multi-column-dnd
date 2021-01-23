@@ -1,2 +1,2 @@
-# framer-multi-column-dnd
+# framer-smooth-dnd
 Created with CodeSandbox
