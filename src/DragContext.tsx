@@ -20,6 +20,10 @@ type DragContextApi = {
   getOverlappingDraggableId: (rect: Position, parentLevel: number) => string;
 
   draggingItem: React.MutableRefObject<DraggingItem | undefined>;
+
+  draggingLevel?: number;
+  startDragging: (level: number) => void;
+  finishDragging: () => void;
 };
 
 const DragContext = React.createContext<DragContextApi>(undefined);
@@ -31,6 +35,8 @@ export const DragContextProvider: React.FC = ({ children }) => {
   const containers = React.useRef<Record<string, Position>[]>([]);
 
   const draggingItem = React.useRef<DraggingItem | undefined>(undefined);
+
+  const [ draggingLevel, setDraggingLevel ] = React.useState<number|undefined>(undefined);
 
   function setContainerPosition(
     level: number,
@@ -45,12 +51,17 @@ export const DragContextProvider: React.FC = ({ children }) => {
     draggedPosition.current = { key: k, position: p };
   }
 
+  console.log('rendering dragContext')
+
   return (
     <AnimateSharedLayout>
       <DragContext.Provider
         value={{
           setDragPosition,
           setContainerPosition,
+          draggingLevel,
+          startDragging: (level) => setDraggingLevel(level),
+          finishDragging: () => setDraggingLevel(undefined),
           draggingItem,
           dragPosition: draggedPosition,
           getOverlappingDraggableId: (rect, parentLevel) => {

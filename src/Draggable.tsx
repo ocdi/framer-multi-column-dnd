@@ -65,12 +65,23 @@ export const Draggable = (props: IDraggableProps) => {
 
   const previousPos = React.useRef("");
 
+  //const isParentDragging = dragContext.draggingLevel == props.parentLevel;
+  //const fixInPlace = dragContext.draggingLevel !== props.parentLevel;
+
+  const allowDrag = dragContext.draggingLevel === props.parentLevel || dragContext.draggingLevel === undefined;
   return (
     <motion.div
+      key={allowDrag ? "drag" : "nodrag"}
       initial={false}
-      layout={props.parentLevel !== 1}
-      layoutId={props.parentLevel !== 1 ? props.itemId : undefined}
-      drag={props.parentLevel !== 1}
+      layout={allowDrag}
+      layoutId={allowDrag ? props.itemId : undefined}
+      drag={allowDrag}
+      dragMomentum={true}
+      dragTransition={{
+        bounceStiffness: 100000,
+        bounceDamping: 100000,
+      }}
+
       ref={ref}
       onDrag={(e, d) => {
         if (!ref.current) {
@@ -105,6 +116,7 @@ export const Draggable = (props: IDraggableProps) => {
       }}
       animate={dragging ? onTop : flat}
       onDragStart={(a, { point }) => {
+        dragContext.startDragging(props.parentLevel);
         console.log("drag start",props.itemId)
         props?.dragStart(dragIndex);
         dispatch({ type: "START", offset: point.y });
@@ -112,8 +124,11 @@ export const Draggable = (props: IDraggableProps) => {
       onDragEnd={() => {
         dispatch("STOP");
         props.dragEnd();
+        setTimeout(() => dragContext.finishDragging(), 500);
       }}
+      onDragTransitionEnd={() => alert("YES!!!")}
     >
+
       {props.children}
       {dragging && <div>{JSON.stringify(ref?.current?.offsetLeft)}</div>}
       drag index: {props.dragIndex} id: {props.itemId}
@@ -125,7 +140,7 @@ export const Draggable = (props: IDraggableProps) => {
         }}
       >
         {ref.current?.offsetTop}
-        <span>{ref.current?.offsetHeight}</span>
+        <span>{allowDrag && <div>allow drag</div>}</span>
       </div>
     </motion.div>
   );
