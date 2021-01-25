@@ -36,7 +36,9 @@ export const DragContextProvider: React.FC = ({ children }) => {
 
   const draggingItem = React.useRef<DraggingItem | undefined>(undefined);
 
-  const [ draggingLevel, setDraggingLevel ] = React.useState<number|undefined>(undefined);
+  const [draggingLevel, setDraggingLevel] = React.useState<number | undefined>(
+    undefined
+  );
 
   function setContainerPosition(
     level: number,
@@ -51,7 +53,7 @@ export const DragContextProvider: React.FC = ({ children }) => {
     draggedPosition.current = { key: k, position: p };
   }
 
-  console.log('rendering dragContext')
+  console.log("rendering dragContext");
 
   return (
     <AnimateSharedLayout>
@@ -113,8 +115,7 @@ export const DragContextProvider: React.FC = ({ children }) => {
   );
 };
 
-
-
-
-
-export const ContainerContext = React.createContext<{level: number, orientation: "vertical" | "horizontal"}>({ level: 0, orientation: 'vertical' })
+export const ContainerContext = React.createContext<{
+  level: number;
+  orientation: "vertical" | "horizontal";
+}>({ level: 0, orientation: "vertical" });

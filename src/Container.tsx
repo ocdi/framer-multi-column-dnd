@@ -43,7 +43,6 @@ interface IContainerProps {
   orientation?: "vertical" | "horizontal";
   onReorderItems?: (keys: string[]) => void;
   containerId: string;
-  level: number;
 }
 
 /*
@@ -87,7 +86,7 @@ export const debounce = (fn: Function, delay: number, immediate?: boolean) => {
 
 export const Container: React.FC<IContainerProps> = ({
   orientation = "vertical", // default to vertical
-  level,
+  
   onReorderItems,
   containerId,
   children
@@ -98,6 +97,9 @@ export const Container: React.FC<IContainerProps> = ({
     React.Children.toArray(children)
   );
 
+  const containerContext = React.useContext(ContainerContext);
+  const ourLevel = containerContext.level + 1;
+
   const dragContext = useDragContext();
   const ref = React.useRef<HTMLDivElement>();
 
@@ -105,7 +107,7 @@ export const Container: React.FC<IContainerProps> = ({
   React.useEffect(() => {
     if (ref.current)
       dragContext?.setContainerPosition(
-        level,
+        ourLevel,
         containerId,
         ref.current.getBoundingClientRect()
       );
@@ -185,7 +187,7 @@ export const Container: React.FC<IContainerProps> = ({
   }
 
   return (
-    <ContainerContext.Provider value={{ level, orientation }}>
+    <ContainerContext.Provider value={{ level: ourLevel, orientation }}>
     <div
       ref={ref}
       style={{

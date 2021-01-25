@@ -113,10 +113,9 @@ export const Example = () => {
       <DragContextProvider>
         {" "}
         <div>
-          <Container level={0} orientation="horizontal" containerId="row">
-            <Draggable  itemId="columnA">
+          <Container orientation="horizontal" containerId="row">
+            <Draggable itemId="columnA">
               <Container
-                level={1}
                 containerId="col1"
                 onReorderItems={reorderStuff}
               >
@@ -143,7 +142,6 @@ export const Example = () => {
             </Draggable>
             <Draggable itemId="columnB">
               <Container
-                level={1}
                 containerId="col2"
                 onReorderItems={reorderStuffB}
               >
