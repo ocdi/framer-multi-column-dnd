@@ -13,7 +13,9 @@ export interface IDraggableProps {
   dragEnd?: () => void;
   containerId?: string;
 
-  changeContainer: (container: string) => void
+  parentLevel: number;
+
+  changeContainer?: (container: string) => void
 }
 
 // Spring configs
@@ -66,17 +68,20 @@ export const Draggable = (props: IDraggableProps) => {
   return (
     <motion.div
       initial={false}
-      layout
-      layoutId={props.itemId}
-      drag
+      layout={props.parentLevel !== 1}
+      layoutId={props.parentLevel !== 1 ? props.itemId : undefined}
+      drag={props.parentLevel !== 1}
       ref={ref}
-      onDrag={(e, { point }) => {
+      onDrag={(e, d) => {
         if (!ref.current) {
           return;
         }
 
         setPosition(dragIndex, ref.current.getBoundingClientRect());
-        moveItem(dragIndex, point.y - offset);
+
+        // console.log((d.point.y - offset).toString() + " " + d.offset.y)
+
+        moveItem(dragIndex, d.point.y - offset);
 
         if (
           previousPos.current ===
@@ -90,7 +95,8 @@ export const Draggable = (props: IDraggableProps) => {
         );
 
         const overlapContainer = dragContext.getOverlappingDraggableId(
-          ref.current?.getBoundingClientRect()
+          ref.current?.getBoundingClientRect(),
+          props.parentLevel
         );
         if (overlapContainer !== props.containerId) {
           props.changeContainer(overlapContainer);
@@ -99,6 +105,7 @@ export const Draggable = (props: IDraggableProps) => {
       }}
       animate={dragging ? onTop : flat}
       onDragStart={(a, { point }) => {
+        console.log("drag start",props.itemId)
         props?.dragStart(dragIndex);
         dispatch({ type: "START", offset: point.y });
       }}

@@ -8,73 +8,77 @@ export const Example = () => {
   const stuckColours = ["#FF008C", "#D309E1", "#9C1AFF", "#7700FF"];
   const stuckColours2 = ["red", "green", "blue", "#7700FF"];
 
-  const [ , rerender ] = React.useReducer(a => !a, false);
+  const [, rerender] = React.useReducer((a) => !a, false);
 
   const [columnA, setColumnA] = React.useState([
     {
       colour: stuckColours[0],
       height: 50,
-      key: "a"
+      key: "a",
     },
     {
       colour: stuckColours[1],
       height: 78,
-      key: "b"
+      key: "b",
     },
     {
       colour: stuckColours[2],
       height: 40,
-      key: "c"
+      key: "c",
     },
     {
       colour: stuckColours[3],
       height: 150,
-      key: "d"
-    }
+      key: "d",
+    },
   ]);
 
   const [columnB, setColumnB] = React.useState([
     {
       colour: "orange",
       height: 50,
-      key: "e"
+      key: "e",
     },
     {
       colour: "yellow",
       height: 50,
-      key: "f"
-    }
+      key: "f",
+    },
   ]);
 
   function reorderStuff(keys: string[]) {
     setColumnA(
-      keys.map((k) => {
-        return columnA.find((f) => f.key === k);
-      }).filter(a => !!a)
+      keys
+        .map((k) => {
+          return columnA.find((f) => f.key === k);
+        })
+        .filter((a) => !!a)
     );
   }
 
   function reorderStuffB(keys: string[]) {
     setColumnB(
-      keys.map((k) => {
-        return columnB.find((f) => f.key === k);
-      }).filter(a => !!a)
+      keys
+        .map((k) => {
+          return columnB.find((f) => f.key === k);
+        })
+        .filter((a) => !!a)
     );
   }
 
   function changeContainer(itemKey: string, containerId: string) {
     // find and move the item between containers
-    const ca = columnA.find(a=>a.key == itemKey);
+    const ca = columnA.find((a) => a.key == itemKey);
     let i;
     if (ca) {
       i = ca;
-      if (containerId == 'col1') return;
+      if (containerId == "col1") return;
       const index = columnA.indexOf(ca);
       columnA.splice(index, 1);
     }
-    const cb = columnB.find(a=>a.key == itemKey);
+    const cb = columnB.find((a) => a.key == itemKey);
     if (cb) {
-      if (containerId == 'col2') return;
+      if (containerId == "col2") return;
       i = cb;
       const index = columnB.indexOf(cb);
       columnB.splice(index, 1);
@@ -82,10 +86,10 @@ export const Example = () => {
 
     if (!i) return;
 
-    if (containerId == 'col1') columnA.push(i)
-    if (containerId == 'col2') columnB.push(i)
+    if (containerId == "col1") columnA.push(i);
+    if (containerId == "col2") columnB.push(i);
 
-    console.log('changed columns', columnA, columnB);
+    console.log("changed columns", columnA, columnB);
 
     setColumnA(columnA);
     setColumnB(columnB);
@@ -94,62 +98,71 @@ export const Example = () => {
   }
 
   function moveD1() {
-    changeContainer("d", "col1")
+    changeContainer("d", "col1");
   }
   function moveD() {
-    changeContainer("d", "col2")
+    changeContainer("d", "col2");
   }
 
-  console.log('rendering example');
+  console.log("rendering example");
   return (
     <>
-    <button onClick={moveD1}>Move D to col1</button>
-    <button onClick={moveD}>Move D to col2</button>
+      <button onClick={moveD1}>Move D to col1</button>
+      <button onClick={moveD}>Move D to col2</button>
 
-    <DragContextProvider>
-      {" "}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "300px 300px",
-          columnGap: 30
-        }}
-      >
-
-        
-        <Container containerId="col1" onReorderItems={reorderStuff}>
-          {columnA.map((c, i) => {
-            return (
-              <Draggable key={c.key} itemId={c.key} changeContainer={(containerId) => changeContainer(c.key, containerId)}>
-                <div
-                  style={{
-                    width: 300,
-                    height: c.height,
-                    backgroundColor: c.colour
-                  }}
-                />
-              </Draggable>
-            );
-          })}
-        </Container>
-
-        <Container containerId="col2" onReorderItems={reorderStuffB}>
-          {columnB.map((c, i) => {
-            return (
-              <Draggable key={c.key} itemId={c.key} changeContainer={(containerId) => changeContainer(c.key, containerId)}>
-                <div
-                  style={{
-                    width: 300,
-                    height: c.height,
-                    backgroundColor: c.colour
-                  }}
-                />
-              </Draggable>
-            );
-          })}
-        </Container>
-      </div>
-    </DragContextProvider>
+      <DragContextProvider>
+        {" "}
+        <div>
+          <Container level={0} orientation="horizontal" containerId="row">
+            <Draggable parentLevel={0} itemId="columnA">
+              <Container level={1} containerId="col1" onReorderItems={reorderStuff}>
+                {columnA.map((c, i) => {
+                  return (
+                    <Draggable
+                      key={c.key}
+                      parentLevel={1}
+                      itemId={c.key}
+                      changeContainer={(containerId) =>
+                        changeContainer(c.key, containerId)
+                      }
+                    >
+                      <div
+                        style={{
+                          width: 300,
+                          height: c.height,
+                          backgroundColor: c.colour,
+                        }}
+                      />
+                    </Draggable>
+                  );
+                })}
+              </Container>
+            </Draggable>
+            <Container level={1} containerId="col2" onReorderItems={reorderStuffB}>
+              {columnB.map((c, i) => {
+                return (
+                  <Draggable
+                  parentLevel={1}
+                    key={c.key}
+                    itemId={c.key}
+                    changeContainer={(containerId) =>
+                      changeContainer(c.key, containerId)
+                    }
+                  >
+                    <div
+                      style={{
+                        width: 300,
+                        height: c.height,
+                        backgroundColor: c.colour,
+                      }}
+                    />
+                  </Draggable>
+                );
+              })}
+            </Container>
+          </Container>
+        </div>
+      </DragContextProvider>
     </>
   );
 };

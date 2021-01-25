@@ -13,10 +13,11 @@ type DragContextApi = {
   setDragPosition: (key: string, position: Position) => void;
   dragPosition: React.MutableRefObject<KeyedPosition | undefined>;
   setContainerPosition: (
+    level: number,
     containerId: string,
     position: Position
   ) => void;
-  getOverlappingDraggableId: (rect: Position) => string;
+  getOverlappingDraggableId: (rect: Position, parentLevel: number) => string;
 
   draggingItem: React.MutableRefObject<DraggingItem | undefined>;
 };
@@ -27,15 +28,17 @@ export const useDragContext = () => React.useContext(DragContext);
 
 export const DragContextProvider: React.FC = ({ children }) => {
   const draggedPosition = React.useRef<KeyedPosition>();
-  const containers = React.useRef<Record<string, Position>>({});
+  const containers = React.useRef<Record<string, Position>[]>([]);
 
   const draggingItem = React.useRef<DraggingItem | undefined>(undefined);
 
   function setContainerPosition(
+    level: number,
     containerId: string,
     position: Position
   ) {
-    containers.current[containerId] = position;
+    containers.current[level] = containers.current[level] ?? {};
+    containers.current[level][containerId] = position;
   }
 
   function setDragPosition(k, p) {
@@ -50,9 +53,9 @@ export const DragContextProvider: React.FC = ({ children }) => {
           setContainerPosition,
           draggingItem,
           dragPosition: draggedPosition,
-          getOverlappingDraggableId: (rect: Position) => {
+          getOverlappingDraggableId: (rect, parentLevel) => {
             if (!rect) return;
-            const intersect2 = Object.entries(containers.current)
+            const intersect2 = Object.entries(containers.current[parentLevel])
               .map(([key, rectSelection]) => {
                 const x_overlap = Math.max(
                   0,

@@ -43,6 +43,7 @@ interface IContainerProps {
   orientation?: "vertical" | "horizontal";
   onReorderItems?: (keys: string[]) => void;
   containerId: string;
+  level: number;
 }
 
 /*
@@ -83,7 +84,7 @@ export const debounce = (fn: Function, delay: number, immediate?: boolean) => {
 };
 
 export const Container: React.FC<IContainerProps> = ({
-  orientation,
+  orientation,level,
   onReorderItems,
   containerId,
   children
@@ -101,6 +102,7 @@ export const Container: React.FC<IContainerProps> = ({
   React.useEffect(() => {
     if (ref.current)
       dragContext?.setContainerPosition(
+        level,
         containerId,
         ref.current.getBoundingClientRect()
       );
