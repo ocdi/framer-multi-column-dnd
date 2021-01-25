@@ -1,7 +1,8 @@
 import * as React from "react";
 import { motion } from "framer-motion";
 import { Position } from "./Common";
-import { useDragContext } from "./DragContext";
+import { ContainerContext, useDragContext } from "./DragContext";
+import { Container } from "./Container";
 
 export interface IDraggableProps {
   children: any;
@@ -15,7 +16,7 @@ export interface IDraggableProps {
 
   parentLevel: number;
 
-  changeContainer?: (container: string) => void
+  changeContainer?: (container: string) => void;
 }
 
 // Spring configs
@@ -49,6 +50,10 @@ export const Draggable = (props: IDraggableProps) => {
     dragReducer,
     DRAG_INITIAL_STATE
   );
+
+  const { level: parentLevel, orientation } = React.useContext(
+    ContainerContext
+  );
   const { setPosition, dragIndex, moveItem } = props;
 
   // Update the measured position of the item so we can calculate when we should rearrange.
@@ -58,7 +63,7 @@ export const Draggable = (props: IDraggableProps) => {
 
   // when the drag index changes the drag offset must be updated to our new position
   React.useEffect(() => {
-    if (dragging) dispatch({ type: "START", offset: ref.current.offsetTop });
+    if (dragging) dispatch({ type: "START", offset: orientation == "vertical" ? ref.current.offsetTop : ref.current.offsetLeft });
   }, [dragIndex, dragging]);
 
   const dragContext = useDragContext();
@@ -68,7 +73,9 @@ export const Draggable = (props: IDraggableProps) => {
   //const isParentDragging = dragContext.draggingLevel == props.parentLevel;
   //const fixInPlace = dragContext.draggingLevel !== props.parentLevel;
 
-  const allowDrag = dragContext.draggingLevel === props.parentLevel || dragContext.draggingLevel === undefined;
+  const allowDrag =
+    dragContext.draggingLevel === props.parentLevel ||
+    dragContext.draggingLevel === undefined;
   return (
     <motion.div
       key={allowDrag ? "drag" : "nodrag"}
@@ -81,9 +88,8 @@ export const Draggable = (props: IDraggableProps) => {
         bounceStiffness: 100000,
         bounceDamping: 100000,
       }}
-
       ref={ref}
-      onDrag={(e, d) => {
+      onDrag={(e, {point} ) => {
         if (!ref.current) {
           return;
         }
@@ -92,7 +98,7 @@ export const Draggable = (props: IDraggableProps) => {
 
         // console.log((d.point.y - offset).toString() + " " + d.offset.y)
 
-        moveItem(dragIndex, d.point.y - offset);
+        moveItem(dragIndex, (orientation == "vertical" ? point.y : point.x) - offset);
 
         if (
           previousPos.current ===
@@ -117,18 +123,16 @@ export const Draggable = (props: IDraggableProps) => {
       animate={dragging ? onTop : flat}
       onDragStart={(a, { point }) => {
         dragContext.startDragging(props.parentLevel);
-        console.log("drag start",props.itemId)
+        console.log("drag start", props.itemId);
         props?.dragStart(dragIndex);
-        dispatch({ type: "START", offset: point.y });
+        dispatch({ type: "START", offset: orientation == "vertical" ? point.y : point.x });
       }}
       onDragEnd={() => {
         dispatch("STOP");
         props.dragEnd();
         setTimeout(() => dragContext.finishDragging(), 500);
       }}
-      onDragTransitionEnd={() => alert("YES!!!")}
     >
-
       {props.children}
       {dragging && <div>{JSON.stringify(ref?.current?.offsetLeft)}</div>}
       drag index: {props.dragIndex} id: {props.itemId}

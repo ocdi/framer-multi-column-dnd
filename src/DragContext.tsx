@@ -112,3 +112,9 @@ export const DragContextProvider: React.FC = ({ children }) => {
     </AnimateSharedLayout>
   );
 };
+
+
+
+
+
+export const ContainerContext = React.createContext<{level: number, orientation: "vertical" | "horizontal"}>({ level: 0, orientation: 'vertical' })

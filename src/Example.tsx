@@ -115,7 +115,11 @@ export const Example = () => {
         <div>
           <Container level={0} orientation="horizontal" containerId="row">
             <Draggable parentLevel={0} itemId="columnA">
-              <Container level={1} containerId="col1" onReorderItems={reorderStuff}>
+              <Container
+                level={1}
+                containerId="col1"
+                onReorderItems={reorderStuff}
+              >
                 {columnA.map((c, i) => {
                   return (
                     <Draggable
@@ -138,28 +142,34 @@ export const Example = () => {
                 })}
               </Container>
             </Draggable>
-            <Container level={1} containerId="col2" onReorderItems={reorderStuffB}>
-              {columnB.map((c, i) => {
-                return (
-                  <Draggable
-                  parentLevel={1}
-                    key={c.key}
-                    itemId={c.key}
-                    changeContainer={(containerId) =>
-                      changeContainer(c.key, containerId)
-                    }
-                  >
-                    <div
-                      style={{
-                        width: 300,
-                        height: c.height,
-                        backgroundColor: c.colour,
-                      }}
-                    />
-                  </Draggable>
-                );
-              })}
-            </Container>
+            <Draggable parentLevel={0} itemId="columnB">
+              <Container
+                level={1}
+                containerId="col2"
+                onReorderItems={reorderStuffB}
+              >
+                {columnB.map((c, i) => {
+                  return (
+                    <Draggable
+                      parentLevel={1}
+                      key={c.key}
+                      itemId={c.key}
+                      changeContainer={(containerId) =>
+                        changeContainer(c.key, containerId)
+                      }
+                    >
+                      <div
+                        style={{
+                          width: 300,
+                          height: c.height,
+                          backgroundColor: c.colour,
+                        }}
+                      />
+                    </Draggable>
+                  );
+                })}
+              </Container>
+            </Draggable>
           </Container>
         </div>
       </DragContextProvider>

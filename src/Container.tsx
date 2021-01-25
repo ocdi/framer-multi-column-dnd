@@ -1,9 +1,9 @@
 import * as React from "react";
 import { Position } from "./Common";
 // import { clamp, distance } from "@popmotion/popcorn";
-import { findIndex } from "./find-index";
+import { findIndexHorizontal, findIndexVertical } from "./find-index";
 import move from "array-move";
-import { useDragContext } from "./DragContext";
+import { ContainerContext, useDragContext } from "./DragContext";
 
 // Prevent rapid reverse swapping
 // const buffer = 5;
@@ -83,8 +83,11 @@ export const debounce = (fn: Function, delay: number, immediate?: boolean) => {
   };
 };
 
+
+
 export const Container: React.FC<IContainerProps> = ({
-  orientation,level,
+  orientation = "vertical", // default to vertical
+  level,
   onReorderItems,
   containerId,
   children
@@ -125,7 +128,7 @@ export const Container: React.FC<IContainerProps> = ({
   const moveItem = (i: number, dragOffset: number) => {
     if (lastOffset.current === dragOffset) return;
     lastOffset.current = dragOffset;
-    const targetIndex = findIndex(i, dragOffset, positions);
+    const targetIndex = (orientation !== "horizontal" ? findIndexVertical : findIndexHorizontal)(i, dragOffset, positions);
     //console.log("moving item", dragOffset);
     // setDraggedIndex(i);
     // setDraggedTargetIndex(targetIndex);
@@ -185,10 +188,13 @@ export const Container: React.FC<IContainerProps> = ({
   }
 
   return (
+    <ContainerContext.Provider value={{ level, orientation }}>
     <div
       ref={ref}
       style={{
-        backgroundColor: "red",
+        backgroundColor: orientation === "horizontal" ? "red" : "yellow",
+        minHeight:300,
+        gap: 10,
         display: "flex",
         flexDirection: orientation === "horizontal" ? "row" : "column"
       }}
@@ -209,5 +215,6 @@ export const Container: React.FC<IContainerProps> = ({
         return child;
       })}
     </div>
+    </ContainerContext.Provider>
   );
 };
