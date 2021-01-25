@@ -2,7 +2,6 @@ import * as React from "react";
 import { motion } from "framer-motion";
 import { Position } from "./Common";
 import { ContainerContext, useDragContext } from "./DragContext";
-import { Container } from "./Container";
 
 export interface IDraggableProps {
   children: any;
@@ -13,14 +12,11 @@ export interface IDraggableProps {
   dragStart?: (index: number) => void;
   dragEnd?: () => void;
   containerId?: string;
-
-  parentLevel: number;
-
   changeContainer?: (container: string) => void;
 }
 
 // Spring configs
-const onTop = { zIndex: 1 };
+const onTop = { zIndex: 1000000 };
 const flat = {
   zIndex: 0,
   transition: { delay: 0.3 },
@@ -74,7 +70,7 @@ export const Draggable = (props: IDraggableProps) => {
   //const fixInPlace = dragContext.draggingLevel !== props.parentLevel;
 
   const allowDrag =
-    dragContext.draggingLevel === props.parentLevel ||
+    dragContext.draggingLevel === parentLevel ||
     dragContext.draggingLevel === undefined;
   return (
     <motion.div
@@ -113,16 +109,16 @@ export const Draggable = (props: IDraggableProps) => {
 
         const overlapContainer = dragContext.getOverlappingDraggableId(
           ref.current?.getBoundingClientRect(),
-          props.parentLevel
+          parentLevel
         );
         if (overlapContainer !== props.containerId) {
           props.changeContainer(overlapContainer);
           return;
         }
       }}
-      animate={dragging ? onTop : flat}
+      animate={!allowDrag ? { } : dragging ? onTop : flat}
       onDragStart={(a, { point }) => {
-        dragContext.startDragging(props.parentLevel);
+        dragContext.startDragging(parentLevel);
         console.log("drag start", props.itemId);
         props?.dragStart(dragIndex);
         dispatch({ type: "START", offset: orientation == "vertical" ? point.y : point.x });

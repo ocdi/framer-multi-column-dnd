@@ -172,9 +172,6 @@ export const Container: React.FC<IContainerProps> = ({
         setIndexes(indexes);
         positions.splice(index, 1);
       }
-
-      
-      
       return false;
     }
 
@@ -192,7 +189,7 @@ export const Container: React.FC<IContainerProps> = ({
     <div
       ref={ref}
       style={{
-        backgroundColor: orientation === "horizontal" ? "red" : "yellow",
+        backgroundColor: orientation === "horizontal" ? "red" : "green",
         minHeight:300,
         gap: 10,
         display: "flex",

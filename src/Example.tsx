@@ -114,7 +114,7 @@ export const Example = () => {
         {" "}
         <div>
           <Container level={0} orientation="horizontal" containerId="row">
-            <Draggable parentLevel={0} itemId="columnA">
+            <Draggable  itemId="columnA">
               <Container
                 level={1}
                 containerId="col1"
@@ -124,7 +124,6 @@ export const Example = () => {
                   return (
                     <Draggable
                       key={c.key}
-                      parentLevel={1}
                       itemId={c.key}
                       changeContainer={(containerId) =>
                         changeContainer(c.key, containerId)
@@ -142,7 +141,7 @@ export const Example = () => {
                 })}
               </Container>
             </Draggable>
-            <Draggable parentLevel={0} itemId="columnB">
+            <Draggable itemId="columnB">
               <Container
                 level={1}
                 containerId="col2"
@@ -151,7 +150,6 @@ export const Example = () => {
                 {columnB.map((c, i) => {
                   return (
                     <Draggable
-                      parentLevel={1}
                       key={c.key}
                       itemId={c.key}
                       changeContainer={(containerId) =>
