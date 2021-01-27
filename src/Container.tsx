@@ -43,6 +43,7 @@ interface IContainerProps {
   orientation?: "vertical" | "horizontal";
   onReorderItems?: (keys: string[]) => void;
   containerId: string;
+  style?: React.CSSProperties
 }
 
 /*
@@ -86,7 +87,7 @@ export const debounce = (fn: Function, delay: number, immediate?: boolean) => {
 
 export const Container: React.FC<IContainerProps> = ({
   orientation = "vertical", // default to vertical
-  
+  style,
   onReorderItems,
   containerId,
   children
@@ -156,29 +157,7 @@ export const Container: React.FC<IContainerProps> = ({
 
   function dragStartItem(item) {
     console.log("drag start, item", item, containerId);
-
-    let stolen = false;
-
-    function steal() {
-      if (stolen) {
-        console.log("already stolen");
-        return false;
-      }
-      const dragItem =   dragContext.draggingItem.current;
-      dragContext.draggingItem.current = undefined;
-
-      const index = indexes.indexOf(dragItem.item);
-      console.log("item being stolen", containerId, index);
-      if (index >= 0) {
-        indexes.splice(index, 1);
-        setIndexes(indexes);
-        positions.splice(index, 1);
-      }
-      return false;
-    }
-
-    
-    dragContext.draggingItem.current = { item, containerId, steal };
+    dragContext.draggingItem.current = { item, containerId };
   }
 
   function dragStart(index: number) {
@@ -195,7 +174,8 @@ export const Container: React.FC<IContainerProps> = ({
         minHeight:300,
         gap: 10,
         display: "flex",
-        flexDirection: orientation === "horizontal" ? "row" : "column"
+        flexDirection: orientation === "horizontal" ? "row" : "column",
+        ...style
       }}
     >
       {React.Children.map(indexes, (child, index) => {

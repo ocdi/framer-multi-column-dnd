@@ -6,7 +6,6 @@ import { Position, KeyedPosition } from "./Common";
 type DraggingItem = {
   item: React.ReactNode;
   containerId: string;
-  steal: () => boolean;
 };
 
 type DragContextApi = {
