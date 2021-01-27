@@ -1,7 +1,7 @@
 import * as React from "react";
 import { motion } from "framer-motion";
 import { Position } from "./Common";
-import { ContainerContext, useDragContext } from "./DragContext";
+import { ContainerContext, SingleDragContext, useDragContext } from "./DragContext";
 
 export interface IDraggableProps {
   children: any;
@@ -64,14 +64,19 @@ export const Draggable = (props: IDraggableProps) => {
 
   const dragContext = useDragContext();
 
+  const singleDrag = React.useContext(SingleDragContext);
+
   const previousPos = React.useRef("");
 
   //const isParentDragging = dragContext.draggingLevel == props.parentLevel;
   //const fixInPlace = dragContext.draggingLevel !== props.parentLevel;
 
-  const allowDrag =
-    dragContext.draggingLevel === parentLevel ||
-    dragContext.draggingLevel === undefined;
+  // const allowDrag =
+  //   dragContext.draggingLevel === parentLevel ||
+  //   dragContext.draggingLevel === undefined;
+
+  const allowDrag = singleDrag.inLevel === parentLevel && singleDrag.inId === props.itemId;
+
   return (
     <motion.div
       key={allowDrag ? "drag" : "nodrag"}
@@ -79,6 +84,8 @@ export const Draggable = (props: IDraggableProps) => {
       layout={allowDrag}
       layoutId={allowDrag ? props.itemId : undefined}
       drag={allowDrag}
+      onMouseEnter={() => singleDrag.enter(parentLevel, props.itemId)}
+      onMouseLeave={() => singleDrag.exit(parentLevel, props.itemId)}
       dragMomentum={true}
       dragTransition={{
         bounceStiffness: 100000,

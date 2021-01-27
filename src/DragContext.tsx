@@ -62,7 +62,7 @@ export const DragContextProvider: React.FC = ({ children }) => {
           setContainerPosition,
           draggingLevel,
           startDragging: (level) => setDraggingLevel(level),
-          finishDragging: () => setDraggingLevel(undefined),
+          finishDragging: () => { draggingItem.current = undefined; setDraggingLevel(undefined); },
           draggingItem,
           dragPosition: draggedPosition,
           getOverlappingDraggableId: (rect, parentLevel) => {
@@ -108,7 +108,7 @@ export const DragContextProvider: React.FC = ({ children }) => {
           },
         }}
       >
-        {children}
+        <SingleDragContextProvider>{children}</SingleDragContextProvider>
       </DragContext.Provider>
     </AnimateSharedLayout>
   );
@@ -118,3 +118,77 @@ export const ContainerContext = React.createContext<{
   level: number;
   orientation: "vertical" | "horizontal";
 }>({ level: 0, orientation: "vertical" });
+
+type SingleDragContextApi = {
+  enter: (level: number, itemId: string) => void;
+  exit: (level: number, itemId: string) => void;
+  inLevel: number;
+  inId?: string;
+};
+
+export const SingleDragContext = React.createContext<SingleDragContextApi>(
+  undefined
+);
+
+export const SingleDragContextProvider: React.FC = ({ children }) => {
+  const [items, setItems] = React.useState<(string | undefined)[]>([]);
+  const { draggingItem, draggingLevel } = React.useContext(DragContext);
+
+  const lastEffect = React.useRef<undefined | (() => void)>();
+
+  // when the drag operation finishes, we will be re-rendered, in which case we want to handle the last mouse operation
+  React.useEffect(() => {
+    if (!draggingLevel && lastEffect.current) {
+      lastEffect.current();
+      lastEffect.current = undefined;
+    }
+  }, [draggingLevel])
+
+  function enter(level: number, itemId: string) {
+    if (draggingItem.current) {
+      console.log("currently dragging, not entering", level, itemId);
+      lastEffect.current = () => enter(level, itemId);
+      return;
+    }
+
+    console.log("entering", level, itemId);
+    setItems((i) => {
+      const n = [...i];
+      n[level] = itemId;
+      return n;
+    });
+  }
+  function exit(level: number, itemId: string) {
+    if (draggingItem.current) {
+      console.log("currently dragging, not exiting", level, itemId);
+      lastEffect.current = () => exit(level, itemId);
+      return;
+    }
+    console.log("exiting", level, itemId);
+    setItems((i) => {
+      if (i[level] === itemId) {
+        const n = [...i];
+        n[level] = undefined;
+        return n;
+      }
+      return i;
+    });
+  }
+
+  let inLevel = 0;
+  let inId: string | undefined = undefined;
+  for (let i = items.length; i > 0; i--) {
+    if (!!items[i]) {
+      inLevel = i;
+      inId = items[i];
+      break;
+    }
+  }
+  console.log("single drag", inLevel, inId, items);
+
+  return (
+    <SingleDragContext.Provider value={{ enter, exit, inLevel, inId }}>
+      {children}
+    </SingleDragContext.Provider>
+  );
+};
